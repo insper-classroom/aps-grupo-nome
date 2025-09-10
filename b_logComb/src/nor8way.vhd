@@ -17,5 +17,6 @@ end entity;
 architecture arch of nor8way is
 	signal word: STD_LOGIC_VECTOR(7 downto 0);
 begin
-
+	word <= a & b & c & d & e & f & g & h;
+	q <= NOT (word(7) OR word(6) OR word(5) OR word(4) OR word(3) OR word(2) OR word(1) OR word(0));
 end architecture;
