@@ -1,0 +1,4 @@
+v 4
+file / "/home/borg/ELESSIS/aps-grupo-nome/b_logComb/src/not16.vhd" "cfef6fc74a1d595aa812c84290a0da526e47d8df" "20250910223730.719":
+  entity not16 at 1( 0) + 0 on 11;
+  architecture arch of not16 at 10( 169) + 0 on 12;

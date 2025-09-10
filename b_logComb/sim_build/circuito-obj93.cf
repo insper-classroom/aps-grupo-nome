@@ -1,0 +1,4 @@
+v 4
+file / "/home/borg/ELESSIS/aps-grupo-nome/b_logComb/src/circuito.vhd" "5d71c02335e96a19ef67a6d074cc122512afdade" "20250910221256.976":
+  entity circuito at 1( 0) + 0 on 11;
+  architecture arch of circuito at 10( 139) + 0 on 12;

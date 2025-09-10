@@ -1,0 +1,4 @@
+v 4
+file / "/home/borg/ELESSIS/aps-grupo-nome/b_logComb/src/dmux4way.vhd" "9a76b3d96e6a7bdfbd0ea14ecd95c3d5657ccd76" "20250910221250.553":
+  entity dmux4way at 1( 0) + 0 on 11;
+  architecture rtl of dmux4way at 14( 243) + 0 on 12;

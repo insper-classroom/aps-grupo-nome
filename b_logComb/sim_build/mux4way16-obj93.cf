@@ -1,0 +1,4 @@
+v 4
+file / "/home/borg/ELESSIS/aps-grupo-nome/b_logComb/src/mux4way16.vhd" "793e848f24a0269cf473cc350a91c43a848d2f05" "20250910221254.865":
+  entity mux4way16 at 1( 0) + 0 on 11;
+  architecture arch of mux4way16 at 14( 344) + 0 on 12;
