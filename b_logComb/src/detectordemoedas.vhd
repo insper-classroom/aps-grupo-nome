@@ -11,5 +11,8 @@ end entity;
 architecture arch of detectordemoedas is
 
 begin
-
+    cents <= "11001" when Q = '1' else
+    "01010" when D = '1' else
+    "00101" when N = '1' else
+    "00000";
 end architecture;
