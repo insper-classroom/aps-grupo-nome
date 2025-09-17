@@ -16,10 +16,6 @@ entity Inc16 is
 end entity;
 
 architecture rtl of Inc16 is
-  -- Aqui declaramos sinais (fios auxiliares)
-  -- e componentes (outros módulos) que serao
-  -- utilizados nesse modulo.
-
   component Add16 is
     port(
       a   :  in STD_LOGIC_VECTOR(15 downto 0);
@@ -28,7 +24,8 @@ architecture rtl of Inc16 is
       );
   end component;
 
+  constant one : STD_LOGIC_VECTOR(15 downto 0) := (15 downto 1 => '0', 0 => '1');
+
 begin
-  -- Implementação vem aqui!
   U1: Add16 port map(a => a, b => one, q => q);
 end architecture;
