@@ -25,6 +25,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity ALU is
 	port (
@@ -41,61 +42,25 @@ entity ALU is
 	);
 end entity;
 
-architecture  rtl OF alu is
-  -- Aqui declaramos sinais (fios auxiliares)
-  -- e componentes (outros módulos) que serao
-  -- utilizados nesse modulo.
-
-	component zerador16 IS
-		port(z   : in STD_LOGIC;
-			 a   : in STD_LOGIC_VECTOR(15 downto 0);
-			 y   : out STD_LOGIC_VECTOR(15 downto 0)
-			);
-	end component;
-
-	component inversor16 is
-		port(z   : in STD_LOGIC;
-			 a   : in STD_LOGIC_VECTOR(15 downto 0);
-			 y   : out STD_LOGIC_VECTOR(15 downto 0)
-		);
-	end component;
-
-	component Add16 is
-		port(
-			a   :  in STD_LOGIC_VECTOR(15 downto 0);
-			b   :  in STD_LOGIC_VECTOR(15 downto 0);
-			q   : out STD_LOGIC_VECTOR(15 downto 0)
-		);
-	end component;
-
-	component And16 is
-		port (
-			a:   in  STD_LOGIC_VECTOR(15 downto 0);
-			b:   in  STD_LOGIC_VECTOR(15 downto 0);
-			q:   out STD_LOGIC_VECTOR(15 downto 0)
-		);
-	end component;
-
-	component comparador16 is
-		port(
-			a   : in STD_LOGIC_VECTOR(15 downto 0);
-			zr   : out STD_LOGIC;
-			ng   : out STD_LOGIC
-    );
-	end component;
-
-	component Mux16 is
-		port (
-			a:   in  STD_LOGIC_VECTOR(15 downto 0);
-			b:   in  STD_LOGIC_VECTOR(15 downto 0);
-			sel: in  STD_LOGIC;
-			q:   out STD_LOGIC_VECTOR(15 downto 0)
-		);
-	end component;
-
-   SIGNAL zxout,zyout,nxout,nyout,andout,adderout,muxout,precomp: std_logic_vector(15 downto 0);
-
+architecture rtl of ALU is
+  signal x0, x1, y0, y1   : STD_LOGIC_VECTOR(15 downto 0);
+  signal and_out, add_out : STD_LOGIC_VECTOR(15 downto 0);
+  signal f_out, out_pre   : STD_LOGIC_VECTOR(15 downto 0);
 begin
-  -- Implementação vem aqui!
+  x0 <= (others => '0') when zx = '1' else x;
+  y0 <= (others => '0') when zy = '1' else y;
 
+  x1 <= not x0 when nx = '1' else x0;
+  y1 <= not y0 when ny = '1' else y0;
+
+  and_out <= x1 and y1;
+  add_out <= std_logic_vector(unsigned(x1) + unsigned(y1));
+
+  f_out <= and_out when f = '0' else add_out;
+
+  out_pre <= not f_out when no = '1' else f_out;
+
+  saida <= out_pre;
+  zr    <= '1' when out_pre = (out_pre'range => '0') else '0';
+  ng    <= out_pre(15);
 end architecture;
