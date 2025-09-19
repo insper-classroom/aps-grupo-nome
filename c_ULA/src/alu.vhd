@@ -25,42 +25,105 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
 
 entity ALU is
-	port (
-			x,y:   in STD_LOGIC_VECTOR(15 downto 0); -- entradas de dados da ALU
-			zx:    in STD_LOGIC;                     -- zera a entrada x
-			nx:    in STD_LOGIC;                     -- inverte a entrada x
-			zy:    in STD_LOGIC;                     -- zera a entrada y
-			ny:    in STD_LOGIC;                     -- inverte a entrada y
-			f:     in STD_LOGIC;                     -- se 0 calcula x & y, senão x + y
-			no:    in STD_LOGIC;                     -- inverte o valor da saída
-			zr:    out STD_LOGIC;                    -- setado se saída igual a zero
-			ng:    out STD_LOGIC;                    -- setado se saída é negativa
-			saida: out STD_LOGIC_VECTOR(15 downto 0) -- saída de dados da ALU
-	);
+  port (
+      x,y:   in STD_LOGIC_VECTOR(15 downto 0);
+      zx:    in STD_LOGIC;
+      nx:    in STD_LOGIC;
+      zy:    in STD_LOGIC;
+      ny:    in STD_LOGIC;
+      f:     in STD_LOGIC;
+      no:    in STD_LOGIC;
+      zr:    out STD_LOGIC;
+      ng:    out STD_LOGIC;
+      saida: out STD_LOGIC_VECTOR(15 downto 0);
+      overflow: out STD_LOGIC;
+      direcao: in std_logic;
+      size: in STD_LOGIC_VECTOR(2 downto 0)
+  );
 end entity;
 
-architecture rtl of ALU is
-  signal x0, x1, y0, y1   : STD_LOGIC_VECTOR(15 downto 0);
-  signal and_out, add_out : STD_LOGIC_VECTOR(15 downto 0);
-  signal f_out, out_pre   : STD_LOGIC_VECTOR(15 downto 0);
+architecture  rtl OF ALU is
+
+  component zerador16 IS
+    port(z   : in STD_LOGIC;
+         a   : in STD_LOGIC_VECTOR(15 downto 0);
+         y   : out STD_LOGIC_VECTOR(15 downto 0)
+    );
+  end component;
+
+  component inversor16 is
+    port(z   : in STD_LOGIC;
+         a   : in STD_LOGIC_VECTOR(15 downto 0);
+         y   : out STD_LOGIC_VECTOR(15 downto 0)
+    );
+  end component;
+
+  component Add16 is
+    port(
+      a   :  in STD_LOGIC_VECTOR(15 downto 0);
+      b   :  in STD_LOGIC_VECTOR(15 downto 0);
+      q   : out STD_LOGIC_VECTOR(15 downto 0)
+    );
+  end component;
+
+  component And16 is
+    port (
+      a:   in  STD_LOGIC_VECTOR(15 downto 0);
+      b:   in  STD_LOGIC_VECTOR(15 downto 0);
+      q:   out STD_LOGIC_VECTOR(15 downto 0)
+    );
+  end component;
+
+  component comparador16 is
+    port(
+      a   : in STD_LOGIC_VECTOR(15 downto 0);
+      zr   : out STD_LOGIC;
+      ng   : out STD_LOGIC
+    );
+  end component;
+
+  component Mux16 is
+    port (
+      a:   in  STD_LOGIC_VECTOR(15 downto 0);
+      b:   in  STD_LOGIC_VECTOR(15 downto 0);
+      sel: in  STD_LOGIC;
+      q:   out STD_LOGIC_VECTOR(15 downto 0)
+    );
+  end component;
+
+  component barrelshifter16 is
+    port (
+      a:    in  STD_LOGIC_VECTOR(15 downto 0);
+      dir:  in  std_logic;
+      size: in  std_logic_vector(2 downto 0);
+      q:    out STD_LOGIC_VECTOR(15 downto 0)
+    );
+  end component;
+
+  SIGNAL zxout,zyout,nxout,nyout,andout,adderout,muxout,shift,precomp: std_logic_vector(15 downto 0);
+  SIGNAL ov_int : std_logic;
+
 begin
-  x0 <= (others => '0') when zx = '1' else x;
-  y0 <= (others => '0') when zy = '1' else y;
 
-  x1 <= not x0 when nx = '1' else x0;
-  y1 <= not y0 when ny = '1' else y0;
+  U1: zerador16 port map(z => zx, a => x, y => zxout);
+  U2: inversor16 port map(z => nx, a => zxout, y => nxout);
+  U3: zerador16 port map(z => zy, a => y, y => zyout);
+  U4: inversor16 port map(z => ny, a => zyout, y => nyout);
+  U5: And16 port map(a => nxout, b => nyout, q => andout);
 
-  and_out <= x1 and y1;
-  add_out <= std_logic_vector(unsigned(x1) + unsigned(y1));
+  U6: Add16 port map(a => nxout, b => nyout, q => adderout);
+  -- overflow em soma de complemento de dois: só faz sentido quando f='1'
+  ov_int <= ( (nxout(15) and nyout(15) and (not adderout(15))) or
+              ((not nxout(15)) and (not nyout(15)) and adderout(15)) ) when f='1' else '0';
 
-  f_out <= and_out when f = '0' else add_out;
+  U7: Mux16 port map(a => andout, b => adderout, sel => f, q => muxout);
+  U8: barrelshifter16 port map(a => muxout, dir => direcao, size => size , q => shift);
+  U9: inversor16 port map(z => no, a => shift, y => precomp);
+  U10: comparador16 port map(a => precomp, zr => zr, ng => ng);
 
-  out_pre <= not f_out when no = '1' else f_out;
+  saida <= precomp;
+  overflow <= ov_int;
 
-  saida <= out_pre;
-  zr    <= '1' when out_pre = (out_pre'range => '0') else '0';
-  ng    <= out_pre(15);
 end architecture;
