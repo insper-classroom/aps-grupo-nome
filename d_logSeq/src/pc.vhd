@@ -66,48 +66,7 @@ architecture arch of PC is
 
 begin
 
-  INC : Inc16
-    port map(
-      a => outputReg,
-      q => inc_out
-    );
 
-  MUX_INC : Mux16
-    port map(
-      a   => outputReg,
-      b   => inc_out,
-      sel => increment,
-      q   => after_inc
-    );
-
-  MUX_LOAD : Mux16
-    port map(
-      a   => after_inc,
-      b   => input,
-      sel => load,
-      q   => after_load
-    );
-
-
-  MUX_RESET : Mux16
-    port map(
-      a   => after_load,
-      b   => ZERO16,
-      sel => reset,
-      q   => next_value
-    );
-
-
-  REG : Register16
-    port map(
-      clock  => clock,
-      input  => next_value,
-      load   => '1',
-      output => outputReg
-    );
-
-
-  output <= outputReg;
 
 end architecture;
 
