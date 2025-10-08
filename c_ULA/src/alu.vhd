@@ -42,25 +42,87 @@ entity ALU is
 	);
 end entity;
 
-architecture rtl of ALU is
-  signal x0, x1, y0, y1   : STD_LOGIC_VECTOR(15 downto 0);
-  signal and_out, add_out : STD_LOGIC_VECTOR(15 downto 0);
-  signal f_out, out_pre   : STD_LOGIC_VECTOR(15 downto 0);
+architecture estrut of ALU is
+  -- sinais internos
+  signal x_z, y_z   : STD_LOGIC_VECTOR(15 downto 0);
+  signal x_n, y_n   : STD_LOGIC_VECTOR(15 downto 0);
+  signal and_out    : STD_LOGIC_VECTOR(15 downto 0);
+  signal add_out    : STD_LOGIC_VECTOR(15 downto 0);
+  signal f_out      : STD_LOGIC_VECTOR(15 downto 0);
+  signal out_final  : STD_LOGIC_VECTOR(15 downto 0);
 begin
-  x0 <= (others => '0') when zx = '1' else x;
-  y0 <= (others => '0') when zy = '1' else y;
+  -- ZX/ZY: zerar condicionalmente (zerador16: z, a, y)
+  u_zx: entity work.zerador16
+    port map(
+      z => zx,
+      a => x,
+      y => x_z
+    );
 
-  x1 <= not x0 when nx = '1' else x0;
-  y1 <= not y0 when ny = '1' else y0;
+  u_zy: entity work.zerador16
+    port map(
+      z => zy,
+      a => y,
+      y => y_z
+    );
 
-  and_out <= x1 and y1;
-  add_out <= std_logic_vector(unsigned(x1) + unsigned(y1));
+  -- NX/NY: inverter condicionalmente (inversor16: z, a, y)
+  u_nx: entity work.inversor16
+    port map(
+      z => nx,
+      a => x_z,
+      y => x_n
+    );
 
-  f_out <= and_out when f = '0' else add_out;
+  u_ny: entity work.inversor16
+    port map(
+      z => ny,
+      a => y_z,
+      y => y_n
+    );
 
-  out_pre <= not f_out when no = '1' else f_out;
+  -- Operações básicas
+  u_and: entity work.and16
+    port map(
+      a => x_n,
+      b => y_n,
+      q => and_out
+    );
 
-  saida <= out_pre;
-  zr    <= '1' when out_pre = (out_pre'range => '0') else '0';
-  ng    <= out_pre(15);
+  u_add: entity work.add16
+    port map(
+      a => x_n,
+      b => y_n,
+      q => add_out
+    );
+
+  -- f: 0 = AND, 1 = ADD (mux16: a, b, sel, q)
+  u_f: entity work.mux16
+    port map(
+      a   => and_out,
+      b   => add_out,
+      sel => f,
+      q   => f_out
+    );
+
+  -- no: inverte saída final (reusa inversor16)
+  u_no: entity work.inversor16
+    port map(
+      z => no,
+      a => f_out,
+      y => out_final
+    );
+
+  -- saída
+  saida <= out_final;
+
+  -- flags (comparador16: a, zr, ng)
+  u_cmp: entity work.comparador16
+    port map(
+      a  => out_final,
+      zr => zr,
+      ng => ng
+    );
 end architecture;
+
+
