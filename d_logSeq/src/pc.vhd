@@ -1,3 +1,14 @@
+-- Elementos de Sistemas
+-- developed by Luciano Soares
+-- file: PC.vhd
+-- date: 4/4/2017
+
+-- Contador de 16bits
+-- if (reset[t] == 1) out[t+1] = 0
+-- else if (load[t] == 1)  out[t+1] = in[t]
+-- else if (inc[t] == 1) out[t+1] = out[t] + 1
+-- else out[t+1] = out[t]
+
 library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.NUMERIC_STD.ALL;
@@ -15,14 +26,12 @@ end entity;
 
 architecture arch of PC is
 
-  -- sinais já existentes (mantive os nomes originais)
   signal muxOut     : std_logic_vector(15 downto 0);
   signal muxin0     : std_logic_vector(15 downto 0);
   signal outputReg  : std_logic_vector(15 downto 0);
   signal load_reg   : std_logic;
   signal sel_mux    : std_logic;
 
-  -- ADICIONEI sinais intermediários adicionais (1 driver cada)
   signal inc_out    : std_logic_vector(15 downto 0); -- output do inc16
   signal after_inc  : std_logic_vector(15 downto 0); -- resultado do mux de incremento
   signal after_load : std_logic_vector(15 downto 0); -- resultado do mux de load
