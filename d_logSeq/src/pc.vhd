@@ -12,7 +12,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.NUMERIC_STD.ALL;
-
 entity PC is
     port(
         clock     : in  STD_LOGIC;
@@ -115,4 +114,6 @@ begin
   output <= outputReg;
 
 end architecture;
+
+
 
