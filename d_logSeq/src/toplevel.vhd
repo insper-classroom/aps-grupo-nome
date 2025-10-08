@@ -1,69 +1,80 @@
---
--- Elementos de Sistemas - Aula 5 - Logica Combinacional
--- Rafael . Corsi @ insper . edu . br 
---
--- Arquivo exemplo para acionar os LEDs e ler os bottoes
--- da placa DE0-CV utilizada no curso de elementos de 
--- sistemas do 3s da eng. da computacao
-
-----------------------------
--- Bibliotecas ieee       --
-----------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.all;
 
-----------------------------
--- Entrada e saidas do bloco
-----------------------------
 entity TopLevel is
 	port(
-		SW      : in  std_logic_vector(9 downto 0);
-		KEY     : in  std_logic_vector(3 downto 0);
-		LEDR    : out std_logic_vector(9 downto 0)
+		SW    : in  std_logic_vector(9 downto 0);
+		KEY   : in  std_logic_vector(3 downto 0);
+		LEDR  : out std_logic_vector(9 downto 0);
+		HEX0  : out std_logic_vector(6 downto 0); -- 7seg0
+		HEX1  : out std_logic_vector(6 downto 0); -- 7seg1
+		HEX2  : out std_logic_vector(6 downto 0); -- 7seg2
+		HEX3  : out std_logic_vector(6 downto 0)  -- 7seg3
 	);
 end entity;
 
-----------------------------
--- Implementacao do bloco -- 
-----------------------------
 architecture rtl of TopLevel is
 
+    -- Declaração dos componentes
+    component sevenseg is
+        Port (
+            bcd : in  STD_LOGIC_VECTOR(3 downto 0);
+            leds : out STD_LOGIC_VECTOR(6 downto 0)
+        );
+    end component;
 
-component FlipFlopD is
-	port(
-		clock:  in std_logic;
-		d:      in std_logic;
-		clear:  in std_logic;
-		preset: in std_logic;
-		q:     out std_logic
-	);
-end component;
 
---------------
--- signals
---------------
+    component PC is
+        Port(
+            clock     : in  STD_LOGIC;
+            increment : in  STD_LOGIC;
+            load      : in  STD_LOGIC;
+            reset     : in  STD_LOGIC;
+            input     : in  STD_LOGIC_VECTOR(15 downto 0);
+            output    : out STD_LOGIC_VECTOR(15 downto 0) 
+        );
+    end component;
 
-signal clock, clear, set : std_logic;
+    -- Sinais auxiliares
+    signal clock, clear, set : std_logic;
+    signal saida_ram : std_logic_vector(15 downto 0);
 
----------------
--- implementacao
----------------
 begin
 
-Clock <= not KEY(0); -- os botoes quando nao apertado vale 1
-                     -- e apertado 0, essa logica inverte isso
-clear <= not KEY(1);
-set	<= not KEY(2);
+    -- Inversão do botão (ativo em nível baixo)
+    clock <= not KEY(0);
 
-u0 : FlipFlopD port map (
-		clock    => Clock,
-		d        => SW(0),
-		clear    => clear,
-		preset   => set,
-		q        => LEDR(0)
-	);		
- 
+    -- Instância do PC
+    u1 : pc port map (
+        clock  => clock,
+        increment => '1',
+        load => SW(2),
+        reset => SW(1),
+        input   => "0000000000000100",  -- dado de entrada fixo
+        output  => saida_ram
+    );
+
+    -- Conversão dos 4 grupos de 4 bits para os displays HEX0 a HEX3
+    u2 : sevenseg port map (
+        bcd => saida_ram(3 downto 0),
+        leds => HEX0
+    );
+
+    u3 : sevenseg port map (
+        bcd => saida_ram(7 downto 4),
+        leds => HEX1
+    );
+
+    u4 : sevenseg port map (
+        bcd => saida_ram(11 downto 8),
+        leds => HEX2
+    );
+
+    u5 : sevenseg port map (
+        bcd => saida_ram(15 downto 12),
+        leds => HEX3
+    );
 
 end rtl;
