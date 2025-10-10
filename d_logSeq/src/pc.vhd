@@ -12,6 +12,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.NUMERIC_STD.ALL;
+
 entity PC is
     port(
         clock     : in  STD_LOGIC;
@@ -25,16 +26,13 @@ end entity;
 
 architecture arch of PC is
 
-  signal muxOut     : std_logic_vector(15 downto 0);
-  signal muxin0     : std_logic_vector(15 downto 0);
-  signal outputReg  : std_logic_vector(15 downto 0);
-  signal load_reg   : std_logic;
-  signal sel_mux    : std_logic;
-
-  signal inc_out    : std_logic_vector(15 downto 0); -- output do inc16
-  signal after_inc  : std_logic_vector(15 downto 0); -- resultado do mux de incremento
-  signal after_load : std_logic_vector(15 downto 0); -- resultado do mux de load
-  signal next_value : std_logic_vector(15 downto 0); -- valor que vai para o registrador
+  signal muxOut : std_logic_vector(15 downto 0);
+  signal muxOut2 : std_logic_vector(15 downto 0);
+  signal muxOut3 : std_logic_vector(15 downto 0);
+  signal muxin0 : std_logic_vector(15 downto 0);
+  signal outputReg : std_logic_vector(15 downto 0);
+  signal load_reg: std_logic;
+  signal sel_mux: std_logic;
 
   component Inc16 is
       port(
@@ -62,55 +60,13 @@ architecture arch of PC is
 	end component;
 
 
-  signal ZERO16 : std_logic_vector(15 downto 0) := (others => '0');
-
 begin
 
-  INC : Inc16
-    port map(
-      a => outputReg,
-      q => inc_out
-    );
-
-  MUX_INC : Mux16
-    port map(
-      a   => outputReg,
-      b   => inc_out,
-      sel => increment,
-      q   => after_inc
-    );
-
-  MUX_LOAD : Mux16
-    port map(
-      a   => after_inc,
-      b   => input,
-      sel => load,
-      q   => after_load
-    );
-
-
-  MUX_RESET : Mux16
-    port map(
-      a   => after_load,
-      b   => ZERO16,
-      sel => reset,
-      q   => next_value
-    );
-
-
-  REG : Register16
-    port map(
-      clock  => clock,
-      input  => next_value,
-      load   => '1',
-      output => outputReg
-    );
-
-
-  output <= outputReg;
+    inc: Inc16 port map (a => outputReg, q => muxin0);
+    mux_in: Mux16 port map (a => outputReg, b => muxin0, sel => increment, q => muxOut);
+    mux_m: Mux16 port map (a => muxOut, b => input, sel => load, q => muxOut2);
+    mux_out: Mux16 port map (a => muxOut2, b => (others => '0'), sel => reset, q => muxOut3);
+    reg16: Register16 port map (clock => clock, input => muxOut3, load => '1', output => outputReg);
+    output <= outputReg;
 
 end architecture;
-
-
-
-
