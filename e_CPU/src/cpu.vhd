@@ -184,32 +184,3 @@ begin
 
 end architecture;
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-
-entity inc16 is
-  port(
-    a : in  STD_LOGIC_VECTOR(15 downto 0);
-    q : out STD_LOGIC_VECTOR(15 downto 0)
-  );
-end entity;
-
-architecture rtl of inc16 is
-  component add16
-    port (
-      a  : in  STD_LOGIC_VECTOR(15 downto 0);
-      b  : in  STD_LOGIC_VECTOR(15 downto 0);
-      out: out STD_LOGIC_VECTOR(15 downto 0)
-    );
-  end component;
-
-  constant one : STD_LOGIC_VECTOR(15 downto 0) := (15 downto 1 => '0', 0 => '1');
-
-begin
-  U_inc: add16 port map (
-    a   => a,
-    b   => one,
-    out => q
-  );
-end architecture;
-
