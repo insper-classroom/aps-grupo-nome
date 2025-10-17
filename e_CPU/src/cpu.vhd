@@ -67,7 +67,8 @@ architecture arch of CPU is
       muxALUI_A                   : out STD_LOGIC;
       muxAM                       : out STD_LOGIC;
       zx, nx, zy, ny, f, no       : out STD_LOGIC;
-      loadA, loadD, loadM, loadPC : out STD_LOGIC
+      loadA, loadD, loadM, loadPC : out STD_LOGIC;
+      muxD                        : out STD_LOGIC  -- <<-- NOVA SAÍDA: seleciona origem do %D
       );
   end component;
 
@@ -84,6 +85,7 @@ architecture arch of CPU is
   signal c_loadPC: STD_LOGIC;
   signal c_zr: std_logic := '0'; 
   signal c_ng: std_logic := '0'; 
+  signal c_muxD: STD_LOGIC; -- <<-- NOVO: controle do mux de entrada do registrador D
 
   signal s_muxALUI_Aout: STD_LOGIC_VECTOR(15 downto 0);
   signal s_muxAM_out: STD_LOGIC_VECTOR(15 downto 0);
@@ -92,6 +94,9 @@ architecture arch of CPU is
   signal s_ALUout: STD_LOGIC_VECTOR(15 downto 0);
 
   signal s_pcout: STD_LOGIC_VECTOR(15 downto 0);
+
+  -- NOVO: saída do mux que alimenta o Register16 D
+  signal s_muxD_out: STD_LOGIC_VECTOR(15 downto 0);
 
 begin
 
@@ -111,10 +116,19 @@ begin
       output => s_regAout
     );
 
+  -- MUX para entrada do registrador D (ADICIONADO)
+  mux_D_input: Mux16
+    port map(
+      a => s_ALUout,                     -- origem '0' -> ALU
+      b => instruction(15 downto 0),     -- origem '1' -> imediata da instrução
+      sel => c_muxD,
+      q => s_muxD_out
+    );
+
   regD: Register16
     port map(
       clock => clock,
-      input => s_ALUout,
+      input => s_muxD_out, -- agora vindo do mux (pode ser ALU ou imediata)
       load => c_loadD,
       output => s_regDout
     );
@@ -168,7 +182,8 @@ begin
           loadA => c_loadA,
           loadD => c_loadD,
           loadM => writeM,
-          loadPC => c_loadPC
+          loadPC => c_loadPC,
+          muxD => c_muxD  -- <<-- LIGA NOVA SAÍDA AO SINAL LOCAL
         );
 
     addressM <= s_regAout(14 downto 0);
