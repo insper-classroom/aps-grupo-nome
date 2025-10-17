@@ -1,8 +1,3 @@
--- Elementos de Sistemas
--- developed by Luciano Soares
--- file: CPU.vhd
--- date: 4/4/2017
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
@@ -86,7 +81,6 @@ architecture arch of CPU is
   signal c_no: STD_LOGIC;
   signal c_loadA: STD_LOGIC;
   signal c_loadD: STD_LOGIC;
-  signal c_loadM: STD_LOGIC;
   signal c_loadPC: STD_LOGIC;
   signal c_zr: std_logic := '0'; 
   signal c_ng: std_logic := '0'; 
@@ -101,86 +95,84 @@ architecture arch of CPU is
 
 begin
 
-  outM     <= s_regDout;
-  writeM   <= c_loadM;
-  addressM <= s_regAout(14 downto 0);
-  pcout    <= s_pcout(14 downto 0);
-
-  Mux16_Ainput: Mux16
+  mux_A_input: Mux16
     port map(
-      a   => s_ALUout,                 
-      b   => instruction(15 downto 0), 
+      a => s_ALUout,
+      b => instruction(15 downto 0),
       sel => c_muxALUI_A,
-      q   => s_muxALUI_Aout
+      q => s_muxALUI_Aout
     );
 
-  Mux16_ALUy: Mux16
+  regA: Register16
     port map(
-      a   => s_regAout, 
-      b   => inM,       
-      sel => c_muxAM,
-      q   => s_muxAM_out
-    );
-
-  RegA: Register16
-    port map(
-      clock  => clock,
-      input  => s_muxALUI_Aout,
-      load   => c_loadA,
+      clock => clock,
+      input => s_muxALUI_Aout,
+      load => c_loadA,
       output => s_regAout
     );
 
-  RegD: Register16
+  regD: Register16
     port map(
-      clock  => clock,
-      input  => s_ALUout,
-      load   => c_loadD,
+      clock => clock,
+      input => s_ALUout,
+      load => c_loadD,
       output => s_regDout
     );
 
-  ULA: ALU
+  mux_M_input: Mux16
     port map(
-      x    => s_regDout,
-      y    => s_muxAM_out,
-      zx   => c_zx,
-      nx   => c_nx,
-      zy   => c_zy,
-      ny   => c_ny,
-      f    => c_f,
-      no   => c_no,
-      zr   => c_zr,
-      ng   => c_ng,
-      saida=> s_ALUout
+      a => s_regAout,
+      b => inM,
+      sel => c_muxAM,
+      q => s_muxAM_out
     );
 
-  PC_inst: pc
-    port map (
-      clock     => clock,
-      increment => '1',
-      load      => c_loadPC,
-      reset     => reset,
-      input     => s_regAout,
-      output    => s_pcout
+  ALU_p: ALU
+    port map(
+     x => s_regDout,
+     y => s_muxAM_out,
+     zx => c_zx,
+     nx => c_nx,
+     zy => c_zy,
+     ny => c_ny,
+     f => c_f,
+     no => c_no,
+     zr => c_zr, 
+     ng => c_ng,
+     saida => s_ALUout
     );
 
-  CU: ControlUnit
-    port map (
-      instruction => instruction,
-      zr          => c_zr,
-      ng          => c_ng,
-      muxALUI_A   => c_muxALUI_A,
-      muxAM       => c_muxAM,
-      zx          => c_zx,
-      nx          => c_nx,
-      zy          => c_zy,
-      ny          => c_ny,
-      f           => c_f,
-      no          => c_no,
-      loadA       => c_loadA,
-      loadD       => c_loadD,
-      loadM       => c_loadM,
-      loadPC      => c_loadPC
-    );
+    pc_p: pc
+      port map(
+        clock => clock,
+        increment => '1',
+        load => c_loadPC,
+        reset => reset,
+        input => s_regAout,
+        output => s_pcout
+      );
+
+    control: ControlUnit
+        port map(
+          instruction => instruction,
+          zr => c_zr,
+          ng => c_ng,
+          muxALUI_A => c_muxALUI_A,
+          muxAM => c_muxAM,
+          zx => c_zx,
+          nx => c_nx,
+          zy => c_zy,
+          ny => c_ny,
+          f => c_f,
+          no => c_no,
+          loadA => c_loadA,
+          loadD => c_loadD,
+          loadM => writeM,
+          loadPC => c_loadPC
+        );
+
+    addressM <= s_regAout(14 downto 0);
+    pcout <= s_pcout(14 downto 0);
+    outM <= s_ALUout;
 
 end architecture;
-
