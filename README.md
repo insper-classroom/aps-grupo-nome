@@ -5,6 +5,8 @@ export SIM=ghdl
 pip3 install -r requirements.txt
 cd b_logComb
 SIM=ghdl pytest -s
+
+link do vídeo FPGA: https://youtu.be/01SSGBqBH6s?si=If_XvIxizXbwiXLh
 ```
 
 ## Rodando apenas um teste
