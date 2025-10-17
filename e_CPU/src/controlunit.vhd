@@ -4,6 +4,7 @@
 -- date: 4/4/2017
 -- Modificação:
 --   - Rafael Corsi : nova versão: adicionado reg S
+--   - [ADICIONADO] Rafael (CPU %D imediato): adicionada saída muxD
 --
 -- Unidade que controla os componentes da CPU
 
@@ -19,15 +20,14 @@ entity ControlUnit is
                                                                      -- instrução  e ALU para reg. A
 		muxAM                       : out STD_LOGIC;                     -- mux que seleciona entre
                                                                      -- reg. A e Mem. RAM para ALU
-                                                                     -- A  e Mem. RAM para ALU
 		zx, nx, zy, ny, f, no       : out STD_LOGIC;                     -- sinais de controle da ALU
-		loadA, loadD, loadM, loadPC : out STD_LOGIC :='0'               -- sinais de load do reg. A,
+		loadA, loadD, loadM, loadPC : out STD_LOGIC :='0';              -- sinais de load do reg. A,
                                                                      -- reg. D, Mem. RAM e Program Counter
+        muxD                        : out STD_LOGIC := '0'              -- <<-- NOVA SAÍDA (para CPU)
     );
 end entity;
 
 architecture arch of ControlUnit is
-
 begin
 
   loadD <= instruction(17) and instruction(4);
@@ -38,11 +38,12 @@ begin
   nx <= instruction(17) and instruction(11);
   zy <= instruction(17) and instruction(10);
   ny <= instruction(17) and instruction(9);
-  f <= instruction(17) and instruction(8);
+  f  <= instruction(17) and instruction(8);
   no <= instruction(17) and instruction(7);
   muxAM <= instruction(17) and instruction(13);
   muxALUI_A <= not instruction(17);
 
+  -- controle do PC (inalterado)
   loadPC <= '0' when instruction(17) ='1' and instruction(2 downto 0) = "000" else
             '1' when instruction(17) ='1' and instruction(2 downto 0) = "001" and zr = '0' and ng = '0' else
             '1' when instruction(17) ='1' and instruction(2 downto 0) = "010" and zr = '1' else
@@ -53,6 +54,7 @@ begin
             '1' when instruction(17) ='1' and instruction(2 downto 0) = "111" else
             '0';
 
-
+  -- NOVO: saída do muxD (mantida fixa em '0' por enquanto)
+  muxD <= '0';
 
 end architecture;
