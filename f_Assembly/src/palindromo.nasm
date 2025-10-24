@@ -21,3 +21,37 @@
 ; 
 
  
+COMECO:
+    
+    leaw $10, %A
+    movw (%A), %D
+   
+    leaw $14, %A
+    subw %D, (%A), %D
+    leaw $NAO, %A
+    jne 
+    nop
+
+
+    leaw $11, %A
+    movw (%A), %D
+
+    leaw $13, %A
+    subw %D, (%A), %D
+    leaw $NAO, %A
+    jne
+    nop
+
+
+    leaw $0, %A
+    movw $1, (%A)
+    leaw $FIM, %A
+    jmp
+    nop 
+
+NAO:
+    leaw $0, %A
+    movw $0, (%A)
+
+ACABAR:
+    nop
