@@ -7,4 +7,21 @@
 ; par. Se for verdadeiro, salva 1
 ; em RAM[0] e 0 caso contrário.
 
-
+leaw $5,%A
+movw (%A),%D
+leaw $1,%A
+andw %A,%D,%D
+leaw $EVEN,%A
+je %D
+leaw $0,%A
+movw $0,(%A)
+leaw $END,%A
+jmp
+(EVEN)
+leaw $0,%A
+movw $1,(%A)
+leaw $END,%A
+jmp
+(END)
+leaw $END,%A
+jmp
