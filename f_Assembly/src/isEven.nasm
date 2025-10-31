@@ -13,15 +13,21 @@ leaw $1,%A
 andw %A,%D,%D
 leaw $EVEN,%A
 je %D
+nop
 leaw $0,%A
 movw $0,(%A)
 leaw $END,%A
 jmp
-(EVEN)
+nop
+
+EVEN:
 leaw $0,%A
 movw $1,(%A)
 leaw $END,%A
 jmp
-(END)
+nop
+
+END:
 leaw $END,%A
 jmp
+nop
