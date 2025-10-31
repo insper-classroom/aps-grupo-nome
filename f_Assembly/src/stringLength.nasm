@@ -25,8 +25,6 @@
 ;  RAM[14] = `?`
 ;  RAM[15] = NULL = 0x0000
 
-Você não pode fazer `movw $8,(%A)` (imediato só permite $0, $1, $-1). Reescrevi sem guardar o 8 em memória: computo `8 + contador` a cada iteração e leio o caractere daí. Usa só `RAM[0]` como contador. Com `nop` após jumps e labels com `:`:
-
 leaw $0,%A
 movw $0,(%A)
 
