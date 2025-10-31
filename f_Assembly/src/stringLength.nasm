@@ -1,4 +1,3 @@
-; Arquivo: stringLength.nasm
 ; Curso: Elementos de Sistemas
 ; Criado por: Rafael Corsi 
 ; Data: 28/03/2018
@@ -26,32 +25,38 @@
 ;  RAM[14] = `?`
 ;  RAM[15] = NULL = 0x0000
 
-leaw $1,%A
-movw $8,(%A)
-leaw $2,%A
+Você não pode fazer `movw $8,(%A)` (imediato só permite $0, $1, $-1). Reescrevi sem guardar o 8 em memória: computo `8 + contador` a cada iteração e leio o caractere daí. Usa só `RAM[0]` como contador. Com `nop` após jumps e labels com `:`:
+
+leaw $0,%A
 movw $0,(%A)
-(LOOP)
-leaw $1,%A
+
+LOOP:
+leaw $0,%A
 movw (%A),%D
+leaw $8,%A
+addw %D,%A,%D
 movw %D,%A
 movw (%A),%D
 leaw $DONE,%A
 je %D
-leaw $2,%A
+nop
+
+leaw $0,%A
 movw (%A),%D
 incw %D
 movw %D,(%A)
-leaw $1,%A
-movw (%A),%D
-incw %D
-movw %D,(%A)
+
 leaw $LOOP,%A
 jmp
-(DONE)
-leaw $2,%A
-movw (%A),%D
-leaw $0,%A
-movw %D,(%A)
-(END)
+nop
+
+DONE:
 leaw $END,%A
 jmp
+nop
+
+END:
+leaw $END,%A
+jmp
+nop
+
