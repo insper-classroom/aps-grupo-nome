@@ -102,6 +102,7 @@ public class Code {
             commands.add("leaw $SP, %A");
             commands.add("movw (%A), %A");
             commands.add("decw %A");
+            commands.add("decw %A");
             commands.add("movw %D, (%A)");
             commands.add("leaw $SP, %A");
             commands.add("movw (%A), %D");
@@ -127,10 +128,13 @@ public class Code {
             commands.add("jmp");
             commands.add("nop");
             commands.add(t + ":");
+            commands.add("leaw $0, %A");
+            commands.add("movw %A, %D");
             commands.add("notw %D");
             commands.add(e + ":");
             commands.add("leaw $SP, %A");
             commands.add("movw (%A), %A");
+            commands.add("decw %A");
             commands.add("decw %A");
             commands.add("movw %D, (%A)");
             commands.add("leaw $SP, %A");
@@ -157,10 +161,13 @@ public class Code {
             commands.add("jmp");
             commands.add("nop");
             commands.add(t + ":");
+            commands.add("leaw $0, %A");
+            commands.add("movw %A, %D");
             commands.add("notw %D");
             commands.add(e + ":");
             commands.add("leaw $SP, %A");
             commands.add("movw (%A), %A");
+            commands.add("decw %A");
             commands.add("decw %A");
             commands.add("movw %D, (%A)");
             commands.add("leaw $SP, %A");

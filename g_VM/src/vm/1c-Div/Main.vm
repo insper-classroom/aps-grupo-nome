@@ -14,12 +14,33 @@
 
 function Main.main 0
 
-   
+push constant 0
+pop temp 2
+
+label LOOP
+push temp 0
+push temp 1
+lt
+if-goto DONE
+
+push temp 0
+push temp 1
+sub
+pop temp 0
+
+push temp 2
+push constant 1
+add
+pop temp 2
+
+goto LOOP
+
+label DONE
+push temp 2
+pop temp 3
+
 label end
-
-
-// esse loop sempre deve existir!
-// caso contrario o computador vai
-// executar lixo de memoria.
 label while
-  goto while
+goto while
+
+
