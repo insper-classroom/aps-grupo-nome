@@ -538,11 +538,72 @@ public class Code {
      * @param  numArgs número de argumentos a serem passados na função call.
      */
     public void writeCall(String functionName, Integer numArgs) {
-
         List<String> commands = new ArrayList<String>();
         commands.add(String.format("; %d - chamada de funcao %s", lineCode++, functionName));
 
-    }
+        String ret = String.format("RET_%s_%d", functionName, cont++);
+        commands.add(String.format("leaw $%s, %%A", ret));
+        commands.add("movw %A, %D");
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %A");
+        commands.add("movw %D, (%A)");
+        commands.add("leaw $SP, %A");
+        commands.add("incw (%A)");
+
+        commands.add("leaw $LCL, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %A");
+        commands.add("movw %D, (%A)");
+        commands.add("leaw $SP, %A");
+        commands.add("incw (%A)");
+
+        commands.add("leaw $ARG, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %A");
+        commands.add("movw %D, (%A)");
+        commands.add("leaw $SP, %A");
+        commands.add("incw (%A)");
+
+        commands.add("leaw $THIS, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %A");
+        commands.add("movw %D, (%A)");
+        commands.add("leaw $SP, %A");
+        commands.add("incw (%A)");
+
+        commands.add("leaw $THAT, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %A");
+        commands.add("movw %D, (%A)");
+        commands.add("leaw $SP, %A");
+        commands.add("incw (%A)");
+
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %D");
+        commands.add(String.format("leaw $%d, %%A", numArgs));
+        commands.add("subw %D, %A, %D");   
+        commands.add("leaw $5, %A");
+        commands.add("subw %D, %A, %D");    
+        commands.add("leaw $ARG, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $LCL, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add(String.format("leaw $%s, %%A", functionName));
+        commands.add("jmp");
+        commands.add("nop");
+
+        commands.add(ret + ":");
+
+        write(commands.toArray(new String[0]));
+}
 
     /**
      * Grava no arquivo de saida as instruções em Assembly para o retorno de uma sub rotina.
@@ -551,6 +612,74 @@ public class Code {
 
         List<String> commands = new ArrayList<String>();
         commands.add(String.format("; %d - Retorno de função", lineCode++));
+
+        commands.add("leaw $LCL, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $R13, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $R13, %A");
+        commands.add("movw (%A), %D");      
+        commands.add("leaw $5, %A");
+        commands.add("subw %D, %A, %A");   
+        commands.add("movw (%A), %D");
+        commands.add("leaw $R14, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $SP, %A");
+        commands.add("movw (%A), %D");
+        commands.add("decw %D");
+        commands.add("movw %D, (%A)");
+        commands.add("movw %D, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $ARG, %A");
+        commands.add("movw (%A), %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $ARG, %A");
+        commands.add("movw (%A), %D");
+        commands.add("incw %D");
+        commands.add("leaw $SP, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $R13, %A");
+        commands.add("movw (%A), %D");      
+        commands.add("decw %D");            
+        commands.add("movw %D, %A");
+        commands.add("movw (%A), %D");
+        commands.add("leaw $THAT, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $R13, %A");
+        commands.add("movw (%A), %D");      
+        commands.add("leaw $2, %A");
+        commands.add("subw %D, %A, %A");    
+        commands.add("movw (%A), %D");
+        commands.add("leaw $THIS, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $R13, %A");
+        commands.add("movw (%A), %D");      
+        commands.add("leaw $3, %A");
+        commands.add("subw %D, %A, %A");   
+        commands.add("movw (%A), %D");
+        commands.add("leaw $ARG, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $R13, %A");
+        commands.add("movw (%A), %D");      
+        commands.add("leaw $4, %A");
+        commands.add("subw %D, %A, %A");   
+        commands.add("movw (%A), %D");
+        commands.add("leaw $LCL, %A");
+        commands.add("movw %D, (%A)");
+
+        commands.add("leaw $R14, %A");
+        commands.add("movw (%A), %A");
+        commands.add("jmp");
+        commands.add("nop");
+
+        write(commands.toArray(new String[0]));
 
     }
 
